@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>HW2 Synth</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background: #111;
+      color: white;
+    }
+
+    label {
+      display: block;
+      margin: 8px 0;
+    }
+
+    input, select {
+      width: 220px;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>HW2 Synth</h2>
+  <p>Click page, then play keys (Z–M row)</p>
+
+  <label>
+    Synth Mode:
+    <select id="synthMode">
+      <option value="additive">Additive</option>
+      <option value="am">AM</option>
+      <option value="fm">FM</option>
+    </select>
+  </label>
+
+  <label>
+    Additive Brightness
+    <input type="range" id="addBrightness"
+           min="0" max="1" step="0.01" value="0.5">
+  </label>
+
+  <label>
+    AM Frequency
+    <input type="range" id="amFreq"
+           min="1" max="50" value="20">
+  </label>
+
+  <label>
+    AM Depth
+    <input type="range" id="amDepth"
+           min="0" max="1" step="0.01" value="0.5">
+  </label>
+
+  <label>
+    FM Depth
+    <input type="range" id="fmDepth"
+           min="0" max="500" value="100">
+  </label>
+
+  <label>
+    FM Ratio
+    <input type="range" id="fmRatio"
+           min="0.5" max="4" step="0.1" value="2">
+  </label>
+
+  <script src="HW2.js"></script>
+</body>
+</html>
