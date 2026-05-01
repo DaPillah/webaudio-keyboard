@@ -1,0 +1,71 @@
+<svg width="1440" height="860" viewBox="0 0 1440 860" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1440" height="860" rx="36" fill="#F7FCFA"/>
+  <rect x="38" y="34" width="1364" height="792" rx="28" fill="#FFFFFF" stroke="#D7E8E2" stroke-width="2"/>
+  <text x="82" y="106" fill="#173436" font-family="Avenir Next, Trebuchet MS, sans-serif" font-size="42" font-weight="700">Police Siren Signal Flow</text>
+  <text x="82" y="146" fill="#557273" font-family="Avenir Next, Trebuchet MS, sans-serif" font-size="22">Log sweep LFO modulates the siren oscillator, then horn shaping and short echoes create the final emergency sound.</text>
+
+  <rect x="84" y="218" width="218" height="110" rx="22" fill="#E7F5F0" stroke="#8BC4B4" stroke-width="2"/>
+  <text x="193" y="268" text-anchor="middle" fill="#0F5D58" font-family="Avenir Next, Trebuchet MS, sans-serif" font-size="30" font-weight="700">Log LFO</text>
+  <text x="193" y="302" text-anchor="middle" fill="#2E756C" font-family="Avenir Next, Trebuchet MS, sans-serif" font-size="22">0.1 Hz / 3 Hz</text>
+
+  <rect x="376" y="210" width="244" height="126" rx="22" fill="#F6F1FF" stroke="#BFA8E8" stroke-width="2"/>
+  <text x="498" y="260" text-anchor="middle" fill="#5B2C93" font-family="Avenir Next, Trebuchet MS, sans-serif" font-size="30" font-weight="700">Scale + Offset</text>
+  <text x="498" y="296" text-anchor="middle" fill="#7C4DB8" font-family="Avenir Next, Trebuchet MS, sans-serif" font-size="22">300 Hz to 1100 Hz</text>
+
+  <rect x="706" y="218" width="240" height="110" rx="22" fill="#E7F5F0" stroke="#8BC4B4" stroke-width="2"/>
+  <text x="826" y="268" text-anchor="middle" fill="#0F5D58" font-family="Avenir Next, Trebuchet MS, sans-serif" font-size="30" font-weight="700">Log Oscillator</text>
+  <text x="826" y="302" text-anchor="middle" fill="#2E756C" font-family="Avenir Next, Trebuchet MS, sans-serif" font-size="22">audio rate</text>
+
+  <rect x="1028" y="198" width="236" height="150" rx="22" fill="#FFF8F0" stroke="#E7C58C" stroke-width="2"/>
+  <text x="1146" y="252" text-anchor="middle" fill="#845B13" font-family="Avenir Next, Trebuchet MS, sans-serif" font-size="30" font-weight="700">Horn Stage</text>
+  <text x="1146" y="288" text-anchor="middle" fill="#A77A24" font-family="Avenir Next, Trebuchet MS, sans-serif" font-size="22">drive + clip</text>
+  <text x="1146" y="318" text-anchor="middle" fill="#A77A24" font-family="Avenir Next, Trebuchet MS, sans-serif" font-size="22">band-pass at 1.5 kHz</text>
+
+  <rect x="102" y="520" width="200" height="96" rx="20" fill="#EEF0FF" stroke="#B7BEEA" stroke-width="2"/>
+  <text x="202" y="578" text-anchor="middle" fill="#414F9F" font-family="Avenir Next, Trebuchet MS, sans-serif" font-size="28" font-weight="700">Direct Path</text>
+
+  <rect x="418" y="472" width="210" height="96" rx="20" fill="#FFF4F0" stroke="#E8B5A8" stroke-width="2"/>
+  <text x="523" y="530" text-anchor="middle" fill="#9A4431" font-family="Avenir Next, Trebuchet MS, sans-serif" font-size="26" font-weight="700">Delay 1</text>
+  <text x="523" y="556" text-anchor="middle" fill="#C05D44" font-family="Avenir Next, Trebuchet MS, sans-serif" font-size="20">110 ms</text>
+
+  <rect x="418" y="598" width="210" height="96" rx="20" fill="#FFF4F0" stroke="#E8B5A8" stroke-width="2"/>
+  <text x="523" y="656" text-anchor="middle" fill="#9A4431" font-family="Avenir Next, Trebuchet MS, sans-serif" font-size="26" font-weight="700">Delay 2</text>
+  <text x="523" y="682" text-anchor="middle" fill="#C05D44" font-family="Avenir Next, Trebuchet MS, sans-serif" font-size="20">170 ms</text>
+
+  <rect x="418" y="724" width="210" height="96" rx="20" fill="#FFF4F0" stroke="#E8B5A8" stroke-width="2"/>
+  <text x="523" y="782" text-anchor="middle" fill="#9A4431" font-family="Avenir Next, Trebuchet MS, sans-serif" font-size="26" font-weight="700">Delay 3</text>
+  <text x="523" y="808" text-anchor="middle" fill="#C05D44" font-family="Avenir Next, Trebuchet MS, sans-serif" font-size="20">290 ms</text>
+
+  <rect x="760" y="598" width="230" height="116" rx="22" fill="#F5FAFF" stroke="#A9C8E8" stroke-width="2"/>
+  <text x="875" y="648" text-anchor="middle" fill="#17466D" font-family="Avenir Next, Trebuchet MS, sans-serif" font-size="28" font-weight="700">Echo Sum</text>
+  <text x="875" y="684" text-anchor="middle" fill="#4A708E" font-family="Avenir Next, Trebuchet MS, sans-serif" font-size="22">light shared feedback</text>
+
+  <rect x="1086" y="592" width="204" height="124" rx="22" fill="#EAF8F4" stroke="#9CCFBF" stroke-width="2"/>
+  <text x="1188" y="644" text-anchor="middle" fill="#0F5D58" font-family="Avenir Next, Trebuchet MS, sans-serif" font-size="28" font-weight="700">Mix + Limiter</text>
+  <text x="1188" y="680" text-anchor="middle" fill="#2E756C" font-family="Avenir Next, Trebuchet MS, sans-serif" font-size="22">to speakers</text>
+
+  <path d="M302 273H376" stroke="#0F5D58" stroke-width="6" stroke-linecap="round"/>
+  <path d="M620 273H706" stroke="#5B2C93" stroke-width="6" stroke-linecap="round"/>
+  <path d="M946 273H1028" stroke="#0F5D58" stroke-width="6" stroke-linecap="round"/>
+
+  <path d="M1146 348V430H202V520" stroke="#A77A24" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M1146 348V430H523V472" stroke="#A77A24" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M1146 348V430H523V598" stroke="#A77A24" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M1146 348V430H523V724" stroke="#A77A24" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <path d="M302 568H1086" stroke="#414F9F" stroke-width="6" stroke-linecap="round"/>
+  <path d="M628 520H760V598" stroke="#9A4431" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M628 646H760" stroke="#9A4431" stroke-width="6" stroke-linecap="round"/>
+  <path d="M628 772H760V656" stroke="#9A4431" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M990 656H1086" stroke="#17466D" stroke-width="6" stroke-linecap="round"/>
+  <path d="M875 598V548H352V772H418" stroke="#6B3CAB" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <polygon points="365,273 377,265 377,281" fill="#0F5D58"/>
+  <polygon points="695,273 707,265 707,281" fill="#5B2C93"/>
+  <polygon points="1017,273 1029,265 1029,281" fill="#0F5D58"/>
+  <polygon points="1075,568 1087,560 1087,576" fill="#414F9F"/>
+  <polygon points="749,646 761,638 761,654" fill="#9A4431"/>
+  <polygon points="1075,656 1087,648 1087,664" fill="#17466D"/>
+
+  <text x="812" y="576" fill="#6B3CAB" font-family="Avenir Next, Trebuchet MS, sans-serif" font-size="20">feedback</text>
+</svg>
