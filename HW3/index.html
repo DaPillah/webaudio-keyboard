@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lab 3 - Babbling Brook</title>
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <section class="hero">
+        <div class="hero-topline">
+          <p class="eyebrow">Comp Sound HW3</p>
+          <nav class="mini-nav" aria-label="Site">
+            <a href="./part2/">Part II</a>
+            <a href="./blog/">Police siren writeup</a>
+          </nav>
+        </div>
+        <h1>Babbling Brook</h1>
+        <p class="lede">
+          A Web Audio translation of the simplified SuperCollider brook patch
+          using continuous brown noise, slow cutoff modulation, and resonant
+          filtering.
+        </p>
+        <div class="action-strip">
+          <button id="play-button" class="primary">Play brook</button>
+          <button id="stop-button" class="secondary" disabled>Stop</button>
+        </div>
+        <p id="status" class="status">Ready. Click play to start the stream.</p>
+      </section>
+
+      <section class="grid">
+        <article class="panel">
+          <h2>Reference patch</h2>
+          <pre><code>{
+  (
+    { RHPF.ar(
+        LPF.ar(BrownNoise.ar(), 400),
+        LPF.ar(BrownNoise.ar(), 14) * 400 + 500,
+        0.03,
+        0.1
+      )
+    }.play
+  )
+}</code></pre>
+          <p>
+            The browser version keeps the same idea: noisy input, very slow
+            random motion for the filter cutoff, and a resonant high-pass filter
+            that creates the bubbling texture.
+          </p>
+        </article>
+
+        <article class="panel">
+          <h2>How this version works</h2>
+          <ul>
+            <li>Generate one continuous brown-noise source for the audio signal.</li>
+            <li>Low-pass that noise at 228 Hz to keep it darker and less windy.</li>
+            <li>Generate a second brown-noise source for slow cutoff motion.</li>
+            <li>Low-pass the modulation at 15 Hz, then map it with a 260 Hz base and 1400 Hz drift.</li>
+            <li>Feed that motion into a narrow resonant high-pass filter with high resonance.</li>
+          </ul>
+        </article>
+      </section>
+
+      <section class="panel diagram-panel">
+        <h2>Signal flow</h2>
+        <img
+          src="./assets/brook-signal-flow.svg"
+          alt="Signal flow diagram for the babbling brook Web Audio patch"
+        />
+      </section>
+    </main>
+
+    <script src="./app.js"></script>
+  </body>
+</html>
