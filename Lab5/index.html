@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lab 5 - Pitch Set Theory Composer</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <section class="hero">
+        <p class="eyebrow">Computational Sound Lab 5</p>
+        <h1>Pitch Set Theory Composer</h1>
+        <p class="lede">
+          Generate short compositions by repeatedly applying transposition,
+          inversion, and retrograde to a pitch-class sequence, then audition the
+          result in the browser with WebAudio.
+        </p>
+      </section>
+
+      <section class="top-grid">
+        <section class="panel controls-panel">
+          <div class="panel-heading">
+            <h2>Composer Controls</h2>
+            <p>Enter pitch classes in normal form using values from 0 to 11.</p>
+          </div>
+
+          <form id="composer-form" class="controls-grid">
+            <label class="field field-wide">
+              <span>Initial Pitch-Class Sequence</span>
+              <input
+                id="pitch-class-input"
+                name="pitchClassInput"
+                type="text"
+                value="0, 2, 4, 7"
+                autocomplete="off"
+              />
+            </label>
+
+            <label class="field">
+              <span>Transform Steps</span>
+              <input
+                id="step-count"
+                name="stepCount"
+                type="number"
+                min="1"
+                max="24"
+                value="8"
+              />
+            </label>
+
+            <label class="field">
+              <span>Tempo (BPM)</span>
+              <input
+                id="tempo"
+                name="tempo"
+                type="number"
+                min="50"
+                max="220"
+                value="108"
+              />
+            </label>
+
+            <label class="field">
+              <span>Base Octave</span>
+              <input
+                id="base-octave"
+                name="baseOctave"
+                type="number"
+                min="2"
+                max="6"
+                value="4"
+              />
+            </label>
+
+            <label class="field">
+              <span>Seed (Optional)</span>
+              <input
+                id="seed"
+                name="seed"
+                type="text"
+                placeholder="Leave blank for fresh randomness"
+                autocomplete="off"
+              />
+            </label>
+
+            <div class="field field-actions">
+              <span>Actions</span>
+              <div class="button-row">
+                <button type="submit" id="generate-button">Generate</button>
+                <button type="button" id="play-button" class="secondary">
+                  Play
+                </button>
+                <button type="button" id="stop-button" class="ghost">
+                  Stop
+                </button>
+                <button type="button" id="example-button" class="ghost">
+                  Random Example
+                </button>
+              </div>
+            </div>
+          </form>
+
+          <p id="message" class="message" aria-live="polite"></p>
+        </section>
+
+        <section class="panel timeline-panel">
+          <div class="panel-heading">
+            <h2>Playback Timeline</h2>
+            <p>
+              Pitch classes are shown as note names for readability. The active
+              note is highlighted during playback.
+            </p>
+          </div>
+          <div id="timeline" class="timeline"></div>
+        </section>
+      </section>
+
+      <section class="panel summary-panel">
+        <div class="panel-heading">
+          <h2>Current Composition</h2>
+          <p>
+            The composition begins with the prime form, then appends one
+            transformed sequence per step.
+          </p>
+        </div>
+
+        <div class="summary-grid">
+          <article class="summary-card">
+            <h3>Prime Form</h3>
+            <p id="prime-form" class="summary-value">0 2 4 7</p>
+            <p id="prime-names" class="summary-detail">C D E G</p>
+          </article>
+
+          <article class="summary-card">
+            <h3>Operation Chain</h3>
+            <p id="operation-chain" class="summary-value">P0</p>
+            <p class="summary-detail">
+              Step labels use pitch-set shorthand such as <code>T5</code>,
+              <code>I3</code>, and <code>R</code>.
+            </p>
+          </article>
+
+          <article class="summary-card">
+            <h3>Total Notes</h3>
+            <p id="total-notes" class="summary-value">4</p>
+            <p id="playback-register" class="summary-detail">
+              Register smoothing is enabled for playback.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-heading">
+          <h2>Transform History</h2>
+          <p>Each card shows the exact output sequence after one operation.</p>
+        </div>
+        <div id="history" class="history-grid"></div>
+      </section>
+
+      <footer class="footer">
+        <div class="writeup-cta">
+          <p class="writeup-label">Part III Submission Writeup</p>
+          <a class="writeup-button" href="blog-post.html">Open Blog Post</a>
+        </div>
+      </footer>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>

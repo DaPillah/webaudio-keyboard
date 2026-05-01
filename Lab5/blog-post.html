@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lab 5 Blog Post - Pitch Set Theory Composer</title>
+    <style>
+      body {
+        margin: 0;
+        font-family: Georgia, "Times New Roman", serif;
+        line-height: 1.7;
+        color: #202020;
+        background: #fbf8f2;
+      }
+
+      main {
+        width: min(760px, calc(100% - 2rem));
+        margin: 0 auto;
+        padding: 3rem 0 4rem;
+      }
+
+      h1,
+      h2 {
+        line-height: 1.1;
+      }
+
+      h1 {
+        font-size: 2.9rem;
+        margin-bottom: 0.6rem;
+      }
+
+      h2 {
+        margin-top: 2.4rem;
+        font-size: 1.6rem;
+      }
+
+      p {
+        font-size: 1.05rem;
+      }
+
+      .dek {
+        color: #5a5a5a;
+        font-size: 1.12rem;
+      }
+
+      code {
+        background: #efeadf;
+        padding: 0.1rem 0.35rem;
+        border-radius: 0.3rem;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Building a Pitch-Set Composer in the Browser</h1>
+      <p class="dek">
+        For this lab I chose the pitch set theory option and built a browser
+        tool that starts from a user-provided pitch-class sequence, applies
+        transposition, inversion, and retrograde, and then plays the resulting
+        composition back with WebAudio.
+      </p>
+
+      <p>
+        What I liked about this prompt is that it sits right at the boundary
+        between formal music theory and musical intuition. On paper, the three
+        required operations are simple. Transposition adds the same offset to
+        every pitch class. Inversion reflects every pitch class around an axis.
+        Retrograde reverses the order of events. None of that sounds especially
+        mysterious when written as modular arithmetic. But the moment those
+        operations are chained together and turned into a time-based playback
+        system, the result starts to feel more like composition than homework.
+      </p>
+
+      <h2>From Set Operations to a Sequence of Notes</h2>
+      <p>
+        The first design choice I had to make was how the generated composition
+        should unfold in time. A pitch-class set by itself does not specify
+        rhythm, register, articulation, or phrasing. It only says which pitch
+        classes are present and in what order they should be interpreted as a
+        sequence. I decided to treat the user's input as a prime form
+        collection, preserve its order, and then append one new transformed
+        sequence for each generation step. That means the piece begins with
+        <code>P0</code>, then extends outward as the system randomly selects
+        <code>Tn</code>, <code>In</code>, or <code>R</code>.
+      </p>
+
+      <p>
+        This decision made the tool much easier to understand from the
+        interface. Instead of hiding the process and only exposing the final
+        note stream, I could show a transform history in which each card
+        documents one operation and its exact output. That made debugging easier,
+        but it also made the musical behavior easier to hear. When a retrograde
+        appears in the chain, the reversal is immediately visible. When an
+        inversion is chosen, the contour changes in a way that is more obvious
+        once the transformed pitch classes are displayed next to the operation
+        label.
+      </p>
+
+      <h2>What WebAudio Added</h2>
+      <p>
+        One insight from implementing this myself is that algorithmic
+        composition only becomes meaningful once the abstract representation is
+        mapped into sound. In a classroom explanation, pitch classes can remain
+        in a compact numerical form. In a working browser instrument, they need
+        to become actual frequencies at actual times. I used plain WebAudio
+        oscillators rather than a music library so that I could hear exactly
+        what the generator was doing and keep the implementation transparent.
+        Each note is scheduled with a short envelope, and playback highlights the
+        active note in the visual timeline.
+      </p>
+
+      <p>
+        The most interesting practical problem here was register. Pitch classes
+        alone collapse octave information, which is perfect analytically but not
+        very satisfying sonically. If every pitch class were mapped to a single
+        fixed octave, the output would sound flat and sometimes awkward. To make
+        the result more musical, I added a simple register-smoothing step that
+        chooses a nearby MIDI note for each pitch class based on the previous
+        note. This does not change the pitch-class identity, but it makes the
+        generated melody feel more connected. That was a useful reminder that
+        many compositional systems need a second layer of interpretation before
+        they become convincing as sound.
+      </p>
+
+      <h2>What I Learned by Programming It</h2>
+      <p>
+        The biggest thing I learned is that the "same" transformation can have
+        very different musical consequences depending on the surrounding design
+        choices. Inversion is a good example. Mathematically, it is easy to
+        implement as modular reflection around an axis. Musically, though, the
+        effect depends on how that result is voiced, how fast it is played, and
+        what came immediately before it. That is why the browser tool includes
+        both a seedable random generator and user controls for tempo and base
+        octave. Those parameters are not part of the strict pitch-set
+        definition, but they shape whether the output feels jagged, smooth,
+        tense, or stable.
+      </p>
+
+      <p>
+        Another insight is that randomness by itself is not enough to make a
+        system musically persuasive. Early versions of the generator were
+        technically correct but not especially interesting, because they exposed
+        no context for what had happened. Adding the operation chain, the visual
+        grouping by generation step, and a reproducible seed transformed the
+        project from a black box into something I could actually evaluate. I
+        could ask questions like: does this seed produce too many reversals? Is
+        a certain prime form especially sensitive to inversion axes? Does a
+        slower tempo make repeated transpositions sound more architectural than
+        melodic? Those questions only showed up once the system was concrete
+        enough to audition repeatedly.
+      </p>
+
+      <h2>Closing Thoughts</h2>
+      <p>
+        This lab made pitch set theory feel less like a symbolic exercise and
+        more like a compact language for generative design. The browser tool is
+        still simple, but it captures an important idea: a small set of formal
+        operations can produce a wide range of audible outcomes once they are
+        embedded in an interface, mapped into register, and played back over
+        time. That combination of theory, computation, and listening is what
+        made the lab rewarding for me.
+      </p>
+    </main>
+  </body>
+</html>
