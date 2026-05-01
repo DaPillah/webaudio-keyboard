@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lab 3 - Police Siren</title>
+    <link rel="stylesheet" href="../style.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <section class="hero">
+        <div class="hero-topline">
+          <p class="eyebrow">Comp Sound HW3</p>
+          <nav class="mini-nav" aria-label="Site">
+            <a href="../index.html">Part I</a>
+            <a href="../blog/">Writeup</a>
+          </nav>
+        </div>
+        <h1>Police Siren</h1>
+        <p class="lede">
+          A browser implementation of Farnell's police-siren design using a
+          logarithmic sweep oscillator, horn-style distortion and filtering, and
+          a small network of environmental echoes.
+        </p>
+        <div class="action-strip">
+          <button id="play-siren" class="primary">Play siren</button>
+          <button id="stop-siren" class="secondary" disabled>Stop</button>
+        </div>
+        <div class="mode-strip">
+          <span class="mode-caption">Mode</span>
+          <div class="segmented">
+            <button id="mode-wail" class="secondary mode-button is-active">
+              Wail
+            </button>
+            <button id="mode-yelp" class="secondary mode-button">
+              Yelp
+            </button>
+          </div>
+        </div>
+        <p id="siren-status" class="status">
+          Ready. Pick a mode, then start the siren.
+        </p>
+      </section>
+
+      <section class="grid">
+        <article class="panel">
+          <h2>Signal Chain</h2>
+          <ul>
+            <li>A custom logarithmic waveform acts as both the LFO and the audio oscillator.</li>
+            <li>The LFO sweeps the siren oscillator from roughly 300 Hz to 1100 Hz.</li>
+            <li>Strong clipping simulates the overdriven diaphragm in the horn.</li>
+            <li>A band-pass filter centered near 1.5 kHz shapes the horn resonance.</li>
+            <li>Three recirculating delays create building reflections and city echo.</li>
+          </ul>
+        </article>
+
+        <article class="panel">
+          <h2>Implementation Notes</h2>
+          <p>
+            The book later points out that a triangle wave gives a very similar
+            spectrum, but this version keeps the spirit of the earlier section
+            by sampling a piecewise exponential charge/discharge waveform. The
+            result is then processed by the horn and echo stages to get the
+            bright, resonant siren character.
+          </p>
+        </article>
+      </section>
+
+      <section class="panel">
+        <h2>Mode Guide</h2>
+        <p>
+          <strong>Wail</strong> uses the slower 0.1 Hz sweep from the text. It
+          sounds broader and more distant. <strong>Yelp</strong> switches to a
+          3 Hz sweep for the urgent fast-cycle version. You can change modes
+          while the siren is running.
+        </p>
+      </section>
+    </main>
+
+    <script src="./police-siren.js"></script>
+  </body>
+</html>
