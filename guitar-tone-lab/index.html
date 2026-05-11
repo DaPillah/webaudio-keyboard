@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Modular Guitar Tone Lab</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="noise"></div>
+    <div class="app-shell">
+      <header class="hero">
+        <div class="hero-copy">
+          <p class="eyebrow">WebAudio DSP Studio</p>
+          <h1>Modular Guitar Tone Lab</h1>
+          <p class="hero-text">
+            Plug in a guitar interface or load a clip, then build your tone one
+            stage at a time without getting lost in the signal chain.
+          </p>
+        </div>
+        <div class="hero-actions">
+          <button class="primary-btn" id="wakeAudioBtn">Wake Audio Engine</button>
+          <button class="ghost-btn" id="globalBypassBtn">Compare Dry Signal</button>
+          <a class="ghost-btn blog-link-btn" href="blog.html">Read Implementation Blog</a>
+        </div>
+        <div class="hero-stats">
+          <div class="stat-card">
+            <span class="stat-label">Source</span>
+            <strong id="sourceStat">No source loaded</strong>
+          </div>
+          <div class="stat-card">
+            <span class="stat-label">Chain</span>
+            <strong id="chainStat">0 modules active</strong>
+          </div>
+          <div class="stat-card">
+            <span class="stat-label">Preset Bank</span>
+            <strong id="presetStat">0 saved presets</strong>
+          </div>
+        </div>
+      </header>
+
+      <main class="workspace">
+        <section class="panel guide-panel">
+          <div class="panel-heading">
+            <div>
+              <p class="section-kicker">Quick Start</p>
+              <h2>What To Do First</h2>
+            </div>
+            <span class="panel-badge">4 steps</span>
+          </div>
+
+          <div class="guide-grid">
+            <div class="guide-card">
+              <span class="guide-step">1</span>
+              <h3>Wake the audio engine</h3>
+              <p>Click <strong>Wake Audio Engine</strong> once so the browser allows WebAudio to run.</p>
+            </div>
+            <div class="guide-card">
+              <span class="guide-step">2</span>
+              <h3>Connect a source</h3>
+              <p>For guitar, click <strong>Detect Inputs</strong>, choose your interface, then press <strong>Start Live Input</strong>. Or upload a clip instead.</p>
+            </div>
+            <div class="guide-card">
+              <span class="guide-step">3</span>
+              <h3>Build the rig</h3>
+              <p>Add one effect at a time, then drag the cards in the pedalboard to change the order.</p>
+            </div>
+            <div class="guide-card">
+              <span class="guide-step">4</span>
+              <h3>Tweak the sound</h3>
+              <p>Click any effect card to edit its controls, then use <strong>Compare Dry Signal</strong> to hear the difference.</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="top-grid">
+          <article class="panel">
+            <div class="panel-heading">
+              <div>
+                <p class="section-kicker">Input Stage</p>
+                <h2>1. Connect Or Load Audio</h2>
+              </div>
+              <span class="panel-badge" id="transportBadge">Idle</span>
+            </div>
+
+            <div class="meta-card status-banner">
+              <p class="meta-label">Current Step</p>
+              <strong id="topStatusText">1. Click Wake Audio Engine. 2. Click Authorize Input Access or upload a clip.</strong>
+            </div>
+
+            <div class="input-stage-grid">
+              <section class="subpanel mode-panel">
+                <div class="subpanel-head">
+                  <div>
+                    <p class="section-kicker">Clip Player</p>
+                    <h3>Load Audio</h3>
+                  </div>
+                  <span class="panel-badge">Playback</span>
+                </div>
+
+                <p class="subpanel-intro">
+                  Use this side to upload or replay a clip through the current signal chain without engaging live monitoring.
+                </p>
+
+                <div class="mode-actions">
+                  <label class="upload-tile">
+                    <input type="file" id="fileInput" accept="audio/*" />
+                    <span>Upload Audio File</span>
+                  </label>
+                  <button class="secondary-btn" id="playBtn">Play Through Effect Chain</button>
+                </div>
+
+                <div class="toggle-row clip-toggle-row">
+                  <label class="toggle-pill">
+                    <input type="checkbox" id="loopToggle" checked />
+                    <span>Loop playback</span>
+                  </label>
+                </div>
+
+                <div class="meta-card compact-meta">
+                  <p class="meta-label">Loaded Clip</p>
+                  <strong id="loadedClipLabel">No file or take selected yet.</strong>
+                </div>
+
+                <audio id="takePreview" controls class="take-preview hidden"></audio>
+              </section>
+
+              <section class="subpanel mode-panel">
+                <div class="subpanel-head">
+                  <div>
+                    <p class="section-kicker">Live Guitar</p>
+                    <h3>Audio Interface Input</h3>
+                  </div>
+                  <span class="panel-badge" id="liveInputBadge">Input Idle</span>
+                </div>
+
+                <p class="subpanel-intro">
+                  Use this side for a guitar connected through a USB audio interface. Start with <strong>Authorize Input Access</strong>, then choose the interface and turn on live input.
+                </p>
+
+                <div class="mode-actions live-mode-actions">
+                  <button class="secondary-btn wide-btn" id="authorizeInputBtn">Authorize Input Access</button>
+                  <button class="ghost-btn compact" id="refreshDevicesBtn">Detect Inputs</button>
+                </div>
+
+                <div class="device-row">
+                  <select id="inputDeviceSelect">
+                    <option value="">System Default Input</option>
+                  </select>
+                  <button class="secondary-btn" id="liveInputBtn">Start Live Input</button>
+                </div>
+
+                <div class="slider-block compact-slider">
+                  <div class="slider-head">
+                    <label for="liveInputGain">Input gain</label>
+                    <span id="liveInputGainValue">1.00</span>
+                  </div>
+                  <input
+                    type="range"
+                    id="liveInputGain"
+                    min="0"
+                    max="2"
+                    step="0.01"
+                    value="1"
+                  />
+                </div>
+
+                <div class="mode-actions live-transport-actions">
+                  <button class="secondary-btn" id="recordBtn">Record Take</button>
+                  <button class="secondary-btn" id="stopBtn">Stop All Audio</button>
+                </div>
+
+                <div class="meta-card compact-meta">
+                  <p class="meta-label">Interface Status</p>
+                  <strong id="liveInputStatus">Grant audio permission, then choose your guitar interface input.</strong>
+                </div>
+
+                <p class="guidance-text" id="liveInputGuidance">
+                  Chrome or Edge desktop works best here. For low-latency monitoring,
+                  plug headphones into your interface or set your system output to it.
+                </p>
+              </section>
+            </div>
+          </article>
+
+          <article class="panel">
+            <div class="panel-heading">
+              <div>
+                <p class="section-kicker">Output Stage</p>
+                <h2>2. Shape The Amp Rig</h2>
+              </div>
+              <span class="panel-badge">Session</span>
+            </div>
+
+            <section class="subpanel">
+              <div class="subpanel-head">
+                <div>
+                  <p class="section-kicker">Fixed Output Stage</p>
+                  <h3>Amp + Cab Sim</h3>
+                </div>
+                <span class="panel-badge" id="ampCabBadge">Rig On</span>
+              </div>
+
+              <div class="toggle-row">
+                <label class="toggle-pill">
+                  <input type="checkbox" id="ampCabEnabled" checked />
+                  <span>Enable amp + cabinet stage</span>
+                </label>
+              </div>
+
+              <div class="device-row">
+                <select id="ampModelSelect">
+                  <option value="clean">Clean</option>
+                  <option value="crunch">Crunch</option>
+                  <option value="lead">Lead</option>
+                </select>
+                <select id="cabModelSelect">
+                  <option value="combo-1x12">1x12 Combo</option>
+                  <option value="open-2x12">2x12 Open Back</option>
+                  <option value="closed-4x12">4x12 Closed Back</option>
+                </select>
+              </div>
+
+              <details class="advanced-group">
+                <summary>Advanced amp EQ and output</summary>
+                <div class="slider-grid">
+                  <div class="slider-block compact-slider">
+                    <div class="slider-head">
+                      <label for="ampDrive">Drive</label>
+                      <span id="ampDriveValue">28</span>
+                    </div>
+                    <input type="range" id="ampDrive" min="0" max="100" step="1" value="28" />
+                  </div>
+
+                  <div class="slider-block compact-slider">
+                    <div class="slider-head">
+                      <label for="ampLevel">Output Level</label>
+                      <span id="ampLevelValue">0.95</span>
+                    </div>
+                    <input type="range" id="ampLevel" min="0" max="1.5" step="0.01" value="0.95" />
+                  </div>
+
+                  <div class="slider-block compact-slider">
+                    <div class="slider-head">
+                      <label for="ampBass">Bass</label>
+                      <span id="ampBassValue">0 dB</span>
+                    </div>
+                    <input type="range" id="ampBass" min="-12" max="12" step="1" value="0" />
+                  </div>
+
+                  <div class="slider-block compact-slider">
+                    <div class="slider-head">
+                      <label for="ampMid">Mid</label>
+                      <span id="ampMidValue">0 dB</span>
+                    </div>
+                    <input type="range" id="ampMid" min="-12" max="12" step="1" value="0" />
+                  </div>
+
+                  <div class="slider-block compact-slider">
+                    <div class="slider-head">
+                      <label for="ampTreble">Treble</label>
+                      <span id="ampTrebleValue">0 dB</span>
+                    </div>
+                    <input type="range" id="ampTreble" min="-12" max="12" step="1" value="0" />
+                  </div>
+
+                  <div class="slider-block compact-slider">
+                    <div class="slider-head">
+                      <label for="ampPresence">Presence</label>
+                      <span id="ampPresenceValue">0 dB</span>
+                    </div>
+                    <input type="range" id="ampPresence" min="-12" max="12" step="1" value="0" />
+                  </div>
+                </div>
+              </details>
+
+              <p class="guidance-text" id="ampCabStatus">
+                The fixed amp + speaker stage sits after the pedalboard to make
+                live guitar input sound more like a complete rig.
+              </p>
+            </section>
+
+            <div class="slider-block">
+              <div class="slider-head">
+                <label for="masterGain">Master gain</label>
+                <span id="masterGainValue">0.85</span>
+              </div>
+              <input
+                type="range"
+                id="masterGain"
+                min="0"
+                max="1.5"
+                step="0.01"
+                value="0.85"
+              />
+            </div>
+
+            <details class="advanced-group">
+              <summary>Preset tools</summary>
+              <div class="preset-row">
+                <input
+                  type="text"
+                  id="presetName"
+                  placeholder="Name this preset"
+                  maxlength="32"
+                />
+                <button class="secondary-btn" id="savePresetBtn">Save</button>
+              </div>
+
+              <div class="preset-row">
+                <select id="presetSelect">
+                  <option value="">Choose a saved preset</option>
+                </select>
+                <button class="secondary-btn" id="loadPresetBtn">Load</button>
+                <button class="ghost-btn compact" id="deletePresetBtn">Delete</button>
+              </div>
+            </details>
+
+            <div class="meta-card">
+              <p class="meta-label">Status</p>
+              <strong id="statusText">Ready to build your chain.</strong>
+            </div>
+          </article>
+
+          <article class="panel visualizer-panel">
+            <div class="panel-heading">
+              <div>
+                <p class="section-kicker">Analysis</p>
+                <h2>Optional Visualizers</h2>
+              </div>
+              <span class="panel-badge">Realtime</span>
+            </div>
+
+            <details class="advanced-group">
+              <summary>Open waveform and spectrum views</summary>
+              <div class="visualizer-stack">
+                <div class="viz-card">
+                  <div class="viz-head">
+                    <span>Waveform</span>
+                    <span>Time domain</span>
+                  </div>
+                  <canvas id="waveCanvas"></canvas>
+                </div>
+                <div class="viz-card">
+                  <div class="viz-head">
+                    <span>Spectrum</span>
+                    <span>Frequency bins</span>
+                  </div>
+                  <canvas id="spectrumCanvas"></canvas>
+                </div>
+              </div>
+            </details>
+          </article>
+        </section>
+
+        <section class="bottom-grid">
+          <article class="panel library-panel">
+            <div class="panel-heading">
+              <div>
+                <p class="section-kicker">Module Library</p>
+                <h2>3. Add Effects</h2>
+              </div>
+              <span class="panel-badge">Drag + tune</span>
+            </div>
+
+            <div class="library-grid" id="libraryGrid"></div>
+          </article>
+
+          <article class="panel chain-panel">
+            <div class="panel-heading">
+              <div>
+                <p class="section-kicker">Signal Path</p>
+                <h2>4. Pedalboard Chain</h2>
+              </div>
+              <span class="panel-badge">Reorderable</span>
+            </div>
+
+            <div class="chain-list" id="chainList"></div>
+            <div class="empty-state hidden" id="chainEmptyState">
+              Add an effect from the library to start shaping the tone.
+            </div>
+          </article>
+        </section>
+
+        <section class="inspector-grid">
+          <article class="panel">
+            <div class="panel-heading">
+              <div>
+                <p class="section-kicker">Inspector</p>
+                <h2>5. Tweak Selected Effect</h2>
+              </div>
+              <span class="panel-badge" id="selectedBadge">Nothing selected</span>
+            </div>
+
+            <div id="inspectorPanel" class="inspector-panel"></div>
+          </article>
+
+          <article class="panel">
+            <div class="panel-heading">
+              <div>
+                <p class="section-kicker">DSP Notes</p>
+                <h2>Listening Guide</h2>
+              </div>
+              <span class="panel-badge">Educational</span>
+            </div>
+
+            <div id="insightPanel" class="insight-panel"></div>
+          </article>
+        </section>
+      </main>
+    </div>
+
+    <script src="app.js?v=20260510-5"></script>
+  </body>
+</html>

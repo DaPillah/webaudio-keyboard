@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Designing A Browser-Based Modular Guitar Tone Lab</title>
+    <link rel="stylesheet" href="blog.css" />
+  </head>
+  <body>
+    <div class="blog-shell">
+
+      <nav class="top-nav">
+        <a class="nav-back" href="index.html">← Back to Tone Lab</a>
+        <span class="nav-tag">Implementation Blog</span>
+      </nav>
+
+      <header class="blog-hero">
+        <div class="hero-meta">
+          <span class="hero-tag">WebAudio · DSP · Browser Instrument</span>
+        </div>
+        <h1>Designing A Browser-Based<br>Modular Guitar Tone Lab</h1>
+        <div class="byline">
+          <div class="byline-avatar" aria-hidden="true">JO</div>
+          <div class="byline-info">
+            <span class="byline-name">Justin Oketunmbi</span>
+            <span class="byline-meta">May 10, 2026 &nbsp;·&nbsp; 8 min read</span>
+          </div>
+        </div>
+        <p class="hero-deck">
+          This project started as a classroom final, but I wanted it to feel like a
+          serious WebAudio instrument rather than a homework demo — a browser pedalboard
+          that treats signal ordering, parameter tuning, and live monitoring as
+          first-class compositional decisions.
+        </p>
+        <div class="hero-actions">
+          <a class="primary-link" href="index.html">Open the Tone Lab</a>
+          <a class="secondary-link" href="#architecture">Jump to architecture</a>
+        </div>
+      </header>
+
+      <div class="hero-image-wrap">
+        <img
+          src="assets/overview.png"
+          alt="Modular Guitar Tone Lab — hero section and Quick Start guide showing the four-step workflow"
+          class="hero-image"
+        />
+        <p class="image-caption">The Tone Lab landing view — stat cards, four-step Quick Start guide, and global transport controls.</p>
+      </div>
+
+      <main class="article-body">
+
+        <p class="lead-paragraph">
+          The core idea behind <strong>Modular Guitar Tone Lab</strong> is simple:
+          make the browser behave like a reconfigurable pedalboard, but make the
+          interface teach something about DSP at the same time. I was less
+          interested in reproducing a fixed set of guitar presets and more
+          interested in building a space where a player can hear how routing
+          choices reshape tone.
+        </p>
+        <p>
+          In other words, the project is both a musical tool and a pedagogical
+          instrument. That design goal pushed the implementation in two directions
+          at once. First, the system had to stay responsive enough for real-time
+          experimentation with uploaded files, recorded takes, and live guitar
+          input. Second, the signal chain had to remain legible. The app is not
+          just "effects in the browser" — it is a deliberately visible graph of
+          audio decisions.
+        </p>
+
+        <blockquote class="pull-quote">
+          "The project is not just effects in the browser; it is a deliberately
+          visible graph of audio decisions."
+        </blockquote>
+
+        <section class="article-section" id="architecture">
+          <h2><span class="section-num">01</span> Unifying Three Different Source Types</h2>
+          <p>
+            The most important architectural decision was to route every source type
+            through the same downstream chain. The application supports three entry
+            points:
+          </p>
+          <ul>
+            <li><strong>Uploaded or recorded clips</strong> decoded into an <code>AudioBuffer</code> and played via <code>AudioBufferSourceNode</code></li>
+            <li><strong>Preview playback</strong> through a visible HTML <code>&lt;audio&gt;</code> element wrapped by <code>createMediaElementSource()</code></li>
+            <li><strong>Live guitar input</strong> captured from <code>getUserMedia()</code> and wrapped in a <code>MediaStreamSource</code></li>
+          </ul>
+          <p>
+            Rather than building separate effect paths for each of those entry
+            points, I route them all into a shared <code>sourceBus</code>, then into
+            the pedalboard, then into the fixed amp/cab stage, then into the
+            analyzers and master output. That decision simplified both the UI and
+            the mental model: once a source is "in the lab," it obeys the same
+            routing semantics as everything else.
+          </p>
+          <p>
+            This also means that comparisons are meaningful. If a user uploads a
+            clip, reorders distortion and delay, then switches to live input, the
+            downstream rig behaves consistently. The global dry/processed comparison
+            toggle is therefore not just a convenience; it is a way to make the
+            signal chain legible across source types.
+          </p>
+
+          <figure class="article-figure">
+            <img
+              src="assets/input-output.png"
+              alt="Input Stage panel showing clip player and live guitar sections side by side, with Output Stage showing amp and cab controls"
+            />
+            <figcaption>
+              The split input stage (clip player on the left, live guitar interface on the right) feeds into
+              the same downstream amp/cab rig — here with a USB audio interface already detected and ready.
+            </figcaption>
+          </figure>
+        </section>
+
+        <section class="article-section">
+          <h2><span class="section-num">02</span> Why The Pedalboard Is Modular But The Amp/Cab Is Fixed</h2>
+          <p>
+            I split the rig into two conceptual zones. The first zone is the
+            reorderable pedalboard: distortion, filter, delay, tremolo, and
+            convolution reverb can all be inserted, removed, bypassed, and dragged
+            into different positions. The second zone is a fixed amp/cab stage that
+            sits after the pedalboard.
+          </p>
+          <p>
+            That was a deliberate design choice. From a guitar-rig perspective, it
+            makes sense for the pedals to be the experimental layer and the amp/cab
+            to be the final voicing stage. From a UX perspective, it prevents the
+            graph from becoming visually chaotic. The player can explore pedal order
+            freely without also deciding whether the cabinet model should sit before
+            or after every time-based effect.
+          </p>
+          <p>
+            Technically, the amp/cab block is built from <code>BiquadFilterNode</code>,
+            <code>GainNode</code>, and <code>WaveShaperNode</code>. I chose not to build
+            a full nonlinear amp simulator with speaker IR loading in this version.
+            The goal was a musically convincing downstream color stage that supports
+            the educational aims of the lab — not a sample-accurate recreation of a
+            specific commercial amp model.
+          </p>
+        </section>
+
+        <section class="article-section">
+          <h2><span class="section-num">03</span> DSP Choices Inside Each Module</h2>
+          <p>
+            I kept the modules intentionally transparent so that each one has a
+            clear relationship between a parameter and a sonic consequence.
+          </p>
+          <ul>
+            <li><strong>Distortion</strong> uses a waveshaper with a post-drive low-pass stage so Drive and Tone remain audible as independent controls.</li>
+            <li><strong>Filter</strong> is centered around a <code>BiquadFilterNode</code> with switchable mode, cutoff, and resonance.</li>
+            <li><strong>Delay</strong> uses a feedback loop with a tone filter in the repeat path so brightness decays along with the echoes.</li>
+            <li><strong>Tremolo</strong> uses an oscillator-driven gain modulation path rather than automation curves, keeping the module explicitly LFO-based.</li>
+            <li><strong>Convolution reverb</strong> generates an impulse response procedurally — keeping the project self-contained while still demonstrating IR-based space processing.</li>
+          </ul>
+          <p>
+            Every module also exposes a wet/dry mix. That is partly a practical
+            guitar-design decision, but it also reinforces the pedagogical focus.
+            Mix controls make it easier to hear a processor as an intervention
+            rather than an all-or-nothing replacement of the original signal.
+          </p>
+
+          <figure class="article-figure">
+            <img
+              src="assets/visualizers.png"
+              alt="Optional Visualizers panel showing a live waveform in the time domain and a frequency spectrum with bars concentrated in the low end"
+            />
+            <figcaption>
+              The real-time waveform (time domain) and spectrum analyzer (frequency bins) running during a live session.
+              The spectrum's low-end concentration is typical of a guitar signal processed through distortion and reverb.
+            </figcaption>
+          </figure>
+        </section>
+
+        <section class="article-section">
+          <h2><span class="section-num">04</span> Routing As A Musical Argument</h2>
+
+          <figure class="article-figure">
+            <img
+              src="assets/pedalboard.png"
+              alt="Module Library panel alongside the Pedalboard Chain showing Distortion, Delay, and Convolution Reverb active in order"
+            />
+            <figcaption>
+              The live pedalboard chain — Distortion → Delay → Convolution Reverb — with each module's
+              key parameters visible at a glance. Drag any card to change the order and hear the difference immediately.
+            </figcaption>
+          </figure>
+
+          <p>
+            The app is structured around the idea that order matters. A player does
+            not simply "add delay" or "add distortion"; they decide where those
+            processors sit relative to one another. That seems obvious to guitarists,
+            but in many DSP demos the graph is hidden behind a fixed order, which
+            makes the result feel predetermined.
+          </p>
+          <p>
+            Here, effect order is the point. Putting distortion before delay creates
+            repeats that inherit the saturation; putting delay before distortion
+            collapses the echoes into a denser overdriven texture. Reverb before
+            tremolo reads very differently from tremolo before reverb. The interface
+            therefore treats drag-reordering as a central musical gesture, not a
+            secondary convenience feature.
+          </p>
+        </section>
+
+        <blockquote class="pull-quote">
+          "Effect order is the point. The interface treats drag-reordering as a
+          central musical gesture, not a secondary convenience feature."
+        </blockquote>
+
+        <section class="article-section">
+          <h2><span class="section-num">05</span> Live Input, Monitoring, And The Browser's Constraints</h2>
+          <p>
+            Live guitar input is where the project becomes most clearly "WebAudio"
+            rather than just "audio playback with effects." Device discovery is done
+            with <code>enumerateDevices()</code>, stream capture uses
+            <code>getUserMedia()</code>, and browser voice-processing features are
+            disabled so the signal arrives with as little conferencing-style
+            treatment as possible.
+          </p>
+          <p>
+            That choice improves fidelity, but it also exposes the real monitoring
+            issues that come with browser-based guitar rigs: direct monitoring on
+            the hardware interface, acoustic feedback from speakers, and the basic
+            fact that browser live monitoring is not the same thing as a dedicated
+            native amp simulator. Rather than hiding those constraints, I chose to
+            surface them in the interface with explicit guidance around interface
+            selection, monitoring path, and device permission.
+          </p>
+          <p>
+            In practice, this made the live-input UX as much about communicating
+            system conditions as about building DSP. A guitarist needs to know which
+            input the browser is actually using, whether the app has permission to
+            inspect device labels, and whether the current monitoring setup is likely
+            to produce doubled or unstable sound.
+          </p>
+        </section>
+
+        <section class="article-section">
+          <h2><span class="section-num">06</span> UI Design: Teaching The Graph Without Overwhelming The Player</h2>
+          <p>
+            One of the harder design problems was deciding how much of the graph to
+            expose at once. Too little structure makes the project feel like a toy;
+            too much structure makes it feel like a debugging console. The final UI
+            divides the session into a deliberate sequence:
+          </p>
+          <ol class="styled-list">
+            <li>Connect or load a source</li>
+            <li>Shape the amp rig</li>
+            <li>Add effects</li>
+            <li>Reorder the chain</li>
+            <li>Inspect the selected processor</li>
+          </ol>
+          <p>
+            The split input-stage layout reflects that philosophy. File playback and
+            live guitar monitoring solve different user problems, so they deserve
+            different visual lanes. I did not want "upload a clip," "authorize
+            microphone access," and "record a take" to read as one flat row of
+            equally urgent buttons. Reorganizing the entry point made the app easier
+            to navigate without making it less expressive.
+          </p>
+        </section>
+
+        <section class="article-section">
+          <h2><span class="section-num">07</span> Why I Stayed At The Node-Graph Level</h2>
+          <p>
+            A natural question is why this project stops at stock WebAudio nodes
+            instead of moving immediately into <code>AudioWorklet</code>-based custom
+            DSP. The answer is scope and intention. For this iteration, the goal was
+            to make signal flow, ordering, and parameter exposure musically
+            intelligible. Built-in nodes were already rich enough to support that —
+            they let me focus on graph design, interaction, and real-time listening
+            rather than spending the whole project implementing a custom processing
+            kernel.
+          </p>
+          <p>
+            That said, the project is structured so that some modules could migrate
+            into <code>AudioWorklet</code> in a future pass. A custom distortion
+            stage, more nuanced dynamics processing, or cabinet IR loading would all
+            be reasonable next steps. The current architecture is modular enough
+            that those evolutions would feel like deepening the instrument rather
+            than replacing it.
+          </p>
+        </section>
+
+        <section class="article-section closing-section">
+          <h2><span class="section-num">08</span> What I Am Proud Of</h2>
+          <p>
+            What I like most about this project is that the implementation and the
+            design argument point in the same direction. The graph is modular because
+            the project is about modular listening. The interface exposes order
+            because order is musically consequential. The visualizers are not just
+            decoration; they are there to help users connect what they hear to what
+            they see. Even the amp/cab block exists partly to make the pedalboard
+            legible in a more realistic guitar context.
+          </p>
+          <p>
+            In that sense, the project is not trying to compete with a professional
+            native amp suite. It is trying to do something slightly different: turn a
+            browser into a place where computational sound ideas stay audible,
+            musical, and explorable.
+          </p>
+
+          <div class="next-steps-card">
+            <h3>Next Steps</h3>
+            <p>
+              If I continue developing the Tone Lab, the next features would likely be
+              a safer live-monitoring mode, richer amp voicing, preset comparison, and
+              more advanced module types. But the more important future direction is
+              conceptual: keep pushing toward a tool where signal processing choices
+              remain explicit enough to teach and musical enough to matter.
+            </p>
+            <a class="primary-link" href="index.html">Open the Tone Lab &rarr;</a>
+          </div>
+        </section>
+
+      </main>
+
+      <footer class="blog-footer">
+        <p>Built with the Web Audio API &nbsp;·&nbsp; Computational Sound Final Project</p>
+        <a class="nav-back" href="index.html">← Back to Tone Lab</a>
+      </footer>
+
+    </div>
+  </body>
+</html>
